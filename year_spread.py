@@ -171,51 +171,6 @@ def draw_calendar_page(c, months, mirror=False):
         draw_text_vertically_centered(c, "MISC", left_margin, current_y)
 
 
-def draw_full_grid_page(c, mirror=False, text=""):
-    # Draw the dotted background
-    draw_dot_grid(c, mirror_margins=not mirror)
-
-    # Calculate margins
-    left_margin = MARGIN_RIGHT if not mirror else MARGIN_LEFT
-    right_margin = MARGIN_LEFT if not mirror else MARGIN_RIGHT
-    x_start = left_margin
-    x_end = PAGE_WIDTH - right_margin
-    y_start = DOT_SPACING
-    y_end = PAGE_HEIGHT - DOT_SPACING
-
-    # Compute dot columns and rows
-    num_cols = int((x_end - x_start) / DOT_SPACING) + 1
-    dot_columns = [x_start + i * DOT_SPACING for i in range(num_cols)]
-
-    num_rows = int((y_end - y_start) / DOT_SPACING) + 1
-    dot_rows = [y_start + i * DOT_SPACING for i in range(num_rows)]
-
-    # --- Draw horizontal lines ---
-    for i, y in enumerate(dot_rows):
-        if text and i == num_rows - 1:  # topmost row and text exists
-            # shorter line: from second dot to third-from-last
-            c.line(dot_columns[1], y, dot_columns[-3], y)
-        else:
-            # full width
-            c.line(dot_columns[0], y, dot_columns[-1], y)
-
-    # --- Draw vertical lines ---
-    # Column indices: 1, -3, -2 (always counting from the left)
-    vertical_indices = [1, num_cols - 3, num_cols - 2]
-    vertical_columns = [dot_columns[i] for i in vertical_indices]
-
-    # Extend to top row if text is empty, otherwise one row short
-    top_row_index = -2 if text else -1  # -1 = second-to-last row, 0 = top row
-    for x in vertical_columns:
-        c.line(x, dot_rows[0], x, dot_rows[top_row_index])
-
-    # --- Add text just below the short line ---
-    text_y = dot_rows[-2]
-    text_x = vertical_columns[0]
-    draw_text_vertically_centered(c, text, text_x, text_y)
-
-
-
 
 def create_pdf(filename=None):
     if filename is None:
@@ -244,14 +199,6 @@ def create_pdf(filename=None):
 
     draw_dot_grid(c, mirror_margins=True)
     c.showPage()
-
-    # draw_title_page(c,"BOOKS")
-    # c.showPage()
-    #
-    # draw_full_grid_page(c,False,"FANTASY & SCI_FI")
-    # c.showPage()
-    # draw_full_grid_page(c,True,"")
-    # c.showPage()
 
     c.save()
 
