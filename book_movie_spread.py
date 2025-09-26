@@ -23,7 +23,6 @@ pdfmetrics.registerFont(TTFont(TEXT_FONT, TEXT_FONT_FILE))
 pdfmetrics.registerFont(TTFont(BOLD_FONT, BOLD_FONT_FILE))
 
 
-
 def draw_dot_grid(c, mirror_margins=False):
     c.setFillGray(0.7)
     left_margin = MARGIN_LEFT
@@ -60,6 +59,7 @@ def draw_text_vertically_centered(c, text, x, y, font_name=TEXT_FONT, font_size=
     cy = y + (DOT_SPACING - font_size) / 2
     c.drawString(x, cy, text)
 
+
 def draw_text_right_justified(c, text, x, y, font_name=TEXT_FONT, font_size=11):
     c.setFont(font_name, font_size)
     text_width = c.stringWidth(text, font_name, font_size)
@@ -75,7 +75,8 @@ def draw_text_across_grid(c, text, start_x, base_y, font_name=BOLD_FONT, font_si
         draw_text_in_cell(c, letter, x, base_y, font_name, font_size)
         x += DOT_SPACING
 
-def draw_title_page(c,title):
+
+def draw_title_page(c, title):
     draw_dot_grid(c)
     c.saveState()
     c.translate(PAGE_WIDTH / 2, PAGE_HEIGHT / 2)
@@ -86,7 +87,8 @@ def draw_title_page(c,title):
     c.drawString(-text_width / 2, -font_size / 2, title)
     c.restoreState()
 
-def draw_full_grid_page(c, mirror=False, text="" ):
+
+def draw_full_grid_page(c, mirror=False, text=""):
     # Draw dotted background
     draw_dot_grid(c, mirror_margins=not mirror)
 
@@ -124,7 +126,7 @@ def draw_full_grid_page(c, mirror=False, text="" ):
             c.line(dot_columns[0], y, dot_columns[-1], y)
 
     # --- Vertical lines ---
-    bottom_limit = bottom_limit-5 * mm
+    bottom_limit = bottom_limit - 5 * mm
     vertical_indices = [1, num_cols - 3, num_cols - 2]
     vertical_columns = [dot_columns[i] for i in vertical_indices]
 
@@ -148,7 +150,9 @@ def draw_full_grid_page(c, mirror=False, text="" ):
         x_pos = dot_columns[-1] - 30 * mm
         for i, rating in enumerate(ratings):
             y_pos = start_y + i * DOT_SPACING
-            draw_text_vertically_centered(c, rating, x_pos, y_pos,font_size=smaller_font_size)
+            draw_text_vertically_centered(
+                c, rating, x_pos, y_pos, font_size=smaller_font_size
+            )
 
         # --- Add right-justified tracking text ---
         tracking_lines = ["New", "Repeat", "Previously unfinished"][::-1]
@@ -156,11 +160,9 @@ def draw_full_grid_page(c, mirror=False, text="" ):
         x_pos = dot_columns[-1] - 45 * mm  # 45 mm from rightmost dot column
         for i, line in enumerate(tracking_lines):
             y_pos = dot_rows[start_row_index + i]
-            draw_text_right_justified(c, line, x_pos, y_pos,font_size=smaller_font_size)
-
-
-
-
+            draw_text_right_justified(
+                c, line, x_pos, y_pos, font_size=smaller_font_size
+            )
 
 
 def create_pdf(filename=None):
@@ -168,41 +170,41 @@ def create_pdf(filename=None):
         filename = f"bullet_journal_2025_books.pdf"
     c = canvas.Canvas(filename, pagesize=A5)
 
-    draw_title_page(c,"BOOKS")
+    draw_title_page(c, "BOOKS")
     c.showPage()
 
-    draw_full_grid_page(c,False,"FANTASY & SCI_FI")
+    draw_full_grid_page(c, False, "FANTASY & SCI_FI")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
-    draw_full_grid_page(c,False,"MODERN PROSE & NON-FICTION")
+    draw_full_grid_page(c, False, "MODERN PROSE & NON-FICTION")
     c.showPage()
-    draw_full_grid_page(c,True,"FOREIGN LANGUAGES")
+    draw_full_grid_page(c, True, "FOREIGN LANGUAGES")
     c.showPage()
     draw_dot_grid(c)
     c.showPage()
 
-    draw_title_page(c,"MOVIES")
+    draw_title_page(c, "MOVIES")
     c.showPage()
-    draw_full_grid_page(c,False,"LIGHT FILMS")
+    draw_full_grid_page(c, False, "LIGHT FILMS")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
-    draw_full_grid_page(c,False,"SERIOUS FILMS")
+    draw_full_grid_page(c, False, "SERIOUS FILMS")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
-    draw_full_grid_page(c,False,"LIGHT SERIES")
+    draw_full_grid_page(c, False, "LIGHT SERIES")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
-    draw_full_grid_page(c,False,"SERIOUS SERIES")
+    draw_full_grid_page(c, False, "SERIOUS SERIES")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
-    draw_full_grid_page(c,False,"GAMES")
+    draw_full_grid_page(c, False, "GAMES")
     c.showPage()
-    draw_full_grid_page(c,True,"")
+    draw_full_grid_page(c, True, "")
     c.showPage()
     draw_dot_grid(c)
     c.showPage()

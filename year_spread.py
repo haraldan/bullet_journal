@@ -72,7 +72,8 @@ def draw_text_across_grid(c, text, start_x, base_y, font_name=BOLD_FONT, font_si
         draw_text_in_cell(c, letter, x, base_y, font_name, font_size)
         x += DOT_SPACING
 
-def draw_title_page(c,title):
+
+def draw_title_page(c, title):
     draw_dot_grid(c)
     c.saveState()
     c.translate(PAGE_WIDTH / 2, PAGE_HEIGHT / 2)
@@ -82,6 +83,7 @@ def draw_title_page(c,title):
     text_width = c.stringWidth(title, TEXT_FONT, font_size)
     c.drawString(-text_width / 2, -font_size / 2, title)
     c.restoreState()
+
 
 def draw_year_page(c, year):
     draw_dot_grid(c)
@@ -162,14 +164,22 @@ def draw_calendar_page(c, months, mirror=False):
     if mirror:
         draw_text_vertically_centered(c, "LEGEND", left_margin, current_y)
 
-        additional_texts = [ "Important", "Birthdays", "Other", "Trips", "Schulferien", "NRW Feiertage"]
+        additional_texts = [
+            "Important",
+            "Birthdays",
+            "Other",
+            "Trips",
+            "Schulferien",
+            "NRW Feiertage",
+        ]
         smaller_font_size = 10  # 1 size smaller
         for line in additional_texts:
             current_y -= DOT_SPACING
-            draw_text_vertically_centered(c, line, left_margin + 5 * mm, current_y, TEXT_FONT, smaller_font_size)
+            draw_text_vertically_centered(
+                c, line, left_margin + 5 * mm, current_y, TEXT_FONT, smaller_font_size
+            )
     else:
         draw_text_vertically_centered(c, "MISC", left_margin, current_y)
-
 
 
 def create_pdf(filename=None):

@@ -1,32 +1,33 @@
-from reportlab.lib.pagesizes import A5
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
 import calendar
+
 from reportlab.lib import colors
+from reportlab.lib.pagesizes import A5
+from reportlab.lib.units import mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 # --- SETTINGS ---
 PAGE_WIDTH, PAGE_HEIGHT = A5
 DOT_SPACING = 5 * mm
-MARGIN_LEFT = 13 * mm   # 1.3 cm
-MARGIN_RIGHT = 5 * mm   # 0.5 cm
+MARGIN_LEFT = 13 * mm  # 1.3 cm
+MARGIN_RIGHT = 5 * mm  # 0.5 cm
 TEXT_VERTICAL_ADJUST = 0.5 * mm  # fine-tune vertical position of text
 
 LINE_Y = PAGE_HEIGHT - (2 * DOT_SPACING)  # 2nd dot row from top
 LINE_X_START = MARGIN_LEFT
-LINE_X_SPLIT = LINE_X_START + 85 * mm   # 8.5 cm first line length
-LINE_X_GAP = 5 * mm                     # 5 mm gap
+LINE_X_SPLIT = LINE_X_START + 85 * mm  # 8.5 cm first line length
+LINE_X_GAP = 5 * mm  # 5 mm gap
 LINE_X_RESUME = LINE_X_SPLIT + LINE_X_GAP
-LINE_X_END = LINE_X_RESUME + 35 * mm    # 35 mm second line length
+LINE_X_END = LINE_X_RESUME + 35 * mm  # 35 mm second line length
 
 # Vertical line starting point
 VERTICAL_LINE_X = LINE_X_SPLIT
 VERTICAL_LINE_Y_START = LINE_Y
-VERTICAL_LINE_Y_END = LINE_Y - (155 * mm)   # 15.5 cm down
+VERTICAL_LINE_Y_END = LINE_Y - (155 * mm)  # 15.5 cm down
 
 # Calendar settings
-year, month = 2025, 8
+year, month = 2025, 10
 cal = calendar.Calendar(firstweekday=0)
 month_name_full = calendar.month_name[month].upper()  # full month name
 month_name_short = calendar.month_name[month][:3].upper()
@@ -37,11 +38,11 @@ LINE_WIDTH = DOT_RADIUS * 2
 GREY_LINE_WIDTH = DOT_RADIUS * 1.2  # slightly thinner grey line
 
 # Fonts
-TEXT_FONT_FILE = 'Merienda/static/Merienda-Medium.ttf'
-BOLD_FONT_FILE = 'Merienda/static/Merienda-Black.ttf'
-TEXT_FONT = 'Merienda_medium'
-DATE_FONT = 'Merienda_medium'
-BOLD_FONT = 'Merienda_black'
+TEXT_FONT_FILE = "Merienda/static/Merienda-Medium.ttf"
+BOLD_FONT_FILE = "Merienda/static/Merienda-Black.ttf"
+TEXT_FONT = "Merienda_medium"
+DATE_FONT = "Merienda_medium"
+BOLD_FONT = "Merienda_black"
 
 # Register custom fonts
 pdfmetrics.registerFont(TTFont(TEXT_FONT, TEXT_FONT_FILE))
@@ -65,7 +66,9 @@ def draw_dot_grid(c, mirror_margins=False):
     c.setFillGray(0)
 
 
-def draw_text_in_cell(c, text, x, y, font_name=DATE_FONT, font_size=9, color=colors.black):
+def draw_text_in_cell(
+    c, text, x, y, font_name=DATE_FONT, font_size=9, color=colors.black
+):
     c.setFont(font_name, font_size)
     c.setFillColor(color)
     text_width = c.stringWidth(text, font_name, font_size)
@@ -113,9 +116,11 @@ def draw_second_page(c):
     for i, heading in enumerate(headings):
         # c.setLineWidth(LINE_WIDTH)
         # c.line(MARGIN_RIGHT, current_y, PAGE_WIDTH - MARGIN_LEFT, current_y)
-        draw_text_vertically_centered(c, heading, MARGIN_RIGHT, current_y + DOT_SPACING - DOT_SPACING, TEXT_FONT)
+        draw_text_vertically_centered(
+            c, heading, MARGIN_RIGHT, current_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
+        )
         if i < len(line_spacings) - 1:
-            current_y -= line_spacings[i+1]
+            current_y -= line_spacings[i + 1]
 
 
 def draw_layout(c):
@@ -133,23 +138,50 @@ def draw_layout(c):
 
     new_line_y = VERTICAL_LINE_Y_END - 10 * mm
     c.line(LINE_X_START, new_line_y, LINE_X_END, new_line_y)
-    draw_text_vertically_centered(c, "NEXT MONTH", LINE_X_START, new_line_y + DOT_SPACING - DOT_SPACING, TEXT_FONT)
+    draw_text_vertically_centered(
+        c, "NEXT MONTH", LINE_X_START, new_line_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
+    )
 
     top_35mm_y = LINE_Y
     monthly_tasks_y = top_35mm_y - 40 * mm
     monthly_tasks_line_length = 35 * mm
-    c.line(LINE_X_RESUME, monthly_tasks_y, LINE_X_RESUME + monthly_tasks_line_length, monthly_tasks_y)
-    draw_text_vertically_centered(c, "MONTHLY TASKS", LINE_X_RESUME, monthly_tasks_y + DOT_SPACING - DOT_SPACING, TEXT_FONT)
+    c.line(
+        LINE_X_RESUME,
+        monthly_tasks_y,
+        LINE_X_RESUME + monthly_tasks_line_length,
+        monthly_tasks_y,
+    )
+    draw_text_vertically_centered(
+        c,
+        "MONTHLY TASKS",
+        LINE_X_RESUME,
+        monthly_tasks_y + DOT_SPACING - DOT_SPACING,
+        TEXT_FONT,
+    )
     c.line(LINE_X_RESUME, monthly_tasks_y, LINE_X_RESUME, monthly_tasks_y - 5 * mm)
 
     legend_y = monthly_tasks_y - 15 * mm
     c.line(LINE_X_RESUME, legend_y, LINE_X_RESUME + monthly_tasks_line_length, legend_y)
-    draw_text_vertically_centered(c, "LEGEND", LINE_X_RESUME, legend_y + DOT_SPACING - DOT_SPACING, TEXT_FONT)
+    draw_text_vertically_centered(
+        c, "LEGEND", LINE_X_RESUME, legend_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
+    )
 
     additional_texts = [
-        "Call Grandma", "Call parents", "Sports", "PhD", "Music", "Dancing", "Therapy", "Awesomeness",
+        "Call Grandma",
+        "Call Dad",
+        "Call Mom",
+        "Sports",
+        "PhD",
+        "Music",
+        "Dancing",
+        "Therapy",
         "",  # empty line
-        "Important", "Birthdays", "Other", "Trips", "Schulferien", "Holidays"
+        "Important",
+        "Birthdays",
+        "Other",
+        "Trips",
+        "Schulferien",
+        "Holidays",
     ]
     text_y = legend_y - DOT_SPACING
     smaller_font_size = 10  # 1 size smaller
@@ -157,7 +189,9 @@ def draw_layout(c):
         if line == "":
             text_y -= DOT_SPACING
             continue
-        draw_text_vertically_centered(c, line, LINE_X_RESUME + 5 * mm, text_y, TEXT_FONT, smaller_font_size)
+        draw_text_vertically_centered(
+            c, line, LINE_X_RESUME + 5 * mm, text_y, TEXT_FONT, smaller_font_size
+        )
         text_y -= DOT_SPACING
 
     # Calendar grid with colored weekends and grey lines under Sundays
@@ -171,7 +205,9 @@ def draw_layout(c):
             line_y = y
             c.setStrokeColor(colors.lightgrey)
             c.setLineWidth(GREY_LINE_WIDTH)
-            c.line(LINE_X_START + 2 * DOT_SPACING, line_y, VERTICAL_LINE_X - 5 * mm, line_y)
+            c.line(
+                LINE_X_START + 2 * DOT_SPACING, line_y, VERTICAL_LINE_X - 5 * mm, line_y
+            )
             c.setStrokeColor(colors.black)
         y -= DOT_SPACING
 
