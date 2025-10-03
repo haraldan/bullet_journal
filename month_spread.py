@@ -40,13 +40,15 @@ GREY_LINE_WIDTH = DOT_RADIUS * 1.2  # slightly thinner grey line
 # Fonts
 TEXT_FONT_FILE = "Merienda/static/Merienda-Medium.ttf"
 BOLD_FONT_FILE = "Merienda/static/Merienda-Black.ttf"
+LIGHT_FONT_FILE = "Merienda/static/Merienda-Light.ttf"
+LIGHT_FONT = "Merienda_light"
 TEXT_FONT = "Merienda_medium"
-DATE_FONT = "Merienda_medium"
 BOLD_FONT = "Merienda_black"
 
 # Register custom fonts
 pdfmetrics.registerFont(TTFont(TEXT_FONT, TEXT_FONT_FILE))
 pdfmetrics.registerFont(TTFont(BOLD_FONT, BOLD_FONT_FILE))
+pdfmetrics.registerFont(TTFont(LIGHT_FONT, LIGHT_FONT_FILE))
 
 
 def draw_dot_grid(c, mirror_margins=False):
@@ -67,7 +69,7 @@ def draw_dot_grid(c, mirror_margins=False):
 
 
 def draw_text_in_cell(
-    c, text, x, y, font_name=DATE_FONT, font_size=9, color=colors.black
+    c, text, x, y, font_name=TEXT_FONT, font_size=9, color=colors.black
 ):
     c.setFont(font_name, font_size)
     c.setFillColor(color)
@@ -83,7 +85,7 @@ def draw_text_in_cell(
 
 def draw_text_vertically_centered(c, text, x, y, font_name=TEXT_FONT, font_size=11):
     c.setFont(font_name, font_size)
-    cy = y + (DOT_SPACING - font_size) / 2
+    cy = y + (DOT_SPACING - font_size * 0.8) / 2
     c.drawString(x, cy, text)
 
 
@@ -107,6 +109,20 @@ def draw_first_page(c):
     c.restoreState()
 
 
+def draw_bullet_line(c, text, x, y, font_name=TEXT_FONT, font_size=10, bullet_size=12):
+    # Draw the bullet
+    bullet = "• "
+    c.setFont(font_name, bullet_size)
+    bullet_width = c.stringWidth(bullet, font_name, bullet_size)
+    draw_text_vertically_centered(c, bullet, x, y, font_name, bullet_size)
+
+    # Draw the text next to it
+    c.setFont(font_name, font_size)
+    draw_text_vertically_centered(
+        c, text, x + bullet_width + 2, y, font_name, font_size
+    )
+
+
 def draw_second_page(c):
     draw_dot_grid(c, mirror_margins=True)
     headings = ["MONTHLY TASKS", "ADMINISTRATIVE", "HOME", "OTHER"]
@@ -116,9 +132,27 @@ def draw_second_page(c):
     for i, heading in enumerate(headings):
         # c.setLineWidth(LINE_WIDTH)
         # c.line(MARGIN_RIGHT, current_y, PAGE_WIDTH - MARGIN_LEFT, current_y)
-        draw_text_vertically_centered(
-            c, heading, MARGIN_RIGHT, current_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
-        )
+        draw_text_vertically_centered(c, heading, MARGIN_RIGHT, current_y, TEXT_FONT)
+        # If we're at MONTHLY TASKS, add the bullet list
+        if heading == "MONTHLY TASKS":
+            tasks = [
+                "Prepare monthly spread",
+                "Update family budget sheet",
+                "Change cat's fountain filter",
+                "Book canteen for next month",
+                "Change cat's fountain filter x2",
+            ]
+
+            bullet_font_size = 10
+            task_y = current_y - DOT_SPACING  # a bit of space below heading
+
+            for task in tasks:
+                x_pos = MARGIN_RIGHT + DOT_SPACING / 2 - 1
+                draw_bullet_line(
+                    c, task, x_pos, task_y, LIGHT_FONT, bullet_font_size, bullet_size=12
+                )
+                task_y -= DOT_SPACING  # skip one grid row between tasks
+
         if i < len(line_spacings) - 1:
             current_y -= line_spacings[i + 1]
 
@@ -138,9 +172,7 @@ def draw_layout(c):
 
     new_line_y = VERTICAL_LINE_Y_END - 10 * mm
     c.line(LINE_X_START, new_line_y, LINE_X_END, new_line_y)
-    draw_text_vertically_centered(
-        c, "NEXT MONTH", LINE_X_START, new_line_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
-    )
+    draw_text_vertically_centered(c, "NEXT MONTH", LINE_X_START, new_line_y, TEXT_FONT)
 
     top_35mm_y = LINE_Y
     monthly_tasks_y = top_35mm_y - 40 * mm
@@ -155,16 +187,14 @@ def draw_layout(c):
         c,
         "MONTHLY TASKS",
         LINE_X_RESUME,
-        monthly_tasks_y + DOT_SPACING - DOT_SPACING,
+        monthly_tasks_y,
         TEXT_FONT,
     )
     c.line(LINE_X_RESUME, monthly_tasks_y, LINE_X_RESUME, monthly_tasks_y - 5 * mm)
 
     legend_y = monthly_tasks_y - 15 * mm
     c.line(LINE_X_RESUME, legend_y, LINE_X_RESUME + monthly_tasks_line_length, legend_y)
-    draw_text_vertically_centered(
-        c, "LEGEND", LINE_X_RESUME, legend_y + DOT_SPACING - DOT_SPACING, TEXT_FONT
-    )
+    draw_text_vertically_centered(c, "LEGEND", LINE_X_RESUME, legend_y, TEXT_FONT)
 
     additional_texts = [
         "Call Grandma",
@@ -200,7 +230,7 @@ def draw_layout(c):
     for d in range(1, days_in_month + 1):
         weekday = calendar.weekday(year, month, d)
         color = colors.red if weekday >= 5 else colors.black
-        draw_text_in_cell(c, str(d), LINE_X_START, y, DATE_FONT, 9, color=color)
+        draw_text_in_cell(c, str(d), LINE_X_START, y, TEXT_FONT, 9, color=color)
         if weekday == 6:
             line_y = y
             c.setStrokeColor(colors.lightgrey)
@@ -219,7 +249,7 @@ def draw_layout(c):
         x = start_x
         for day in week:
             if day != 0:
-                draw_text_in_cell(c, str(day), x, week_y, DATE_FONT, 9)
+                draw_text_in_cell(c, str(day), x, week_y, TEXT_FONT, 9)
             x += DOT_SPACING
         week_y -= DOT_SPACING
 

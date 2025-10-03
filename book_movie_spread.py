@@ -39,24 +39,9 @@ def draw_dot_grid(c, mirror_margins=False):
     c.setFillGray(0)
 
 
-def draw_text_in_cell(
-    c, text, x, y, font_name=TEXT_FONT, font_size=9, color=colors.black
-):
-    c.setFont(font_name, font_size)
-    c.setFillColor(color)
-    text_width = c.stringWidth(text, font_name, font_size)
-    ascent = c._fontsize * 0.8
-    descent = c._fontsize * 0.2
-    text_height = ascent + descent
-    cx = x + (DOT_SPACING - text_width) / 2
-    cy = y + (DOT_SPACING - text_height) / 2 + descent - TEXT_VERTICAL_ADJUST
-    c.drawString(cx, cy, text)
-    c.setFillColor(colors.black)
-
-
 def draw_text_vertically_centered(c, text, x, y, font_name=TEXT_FONT, font_size=11):
     c.setFont(font_name, font_size)
-    cy = y + (DOT_SPACING - font_size) / 2
+    cy = y + (DOT_SPACING - font_size * 0.8) / 2
     c.drawString(x, cy, text)
 
 
@@ -64,16 +49,8 @@ def draw_text_right_justified(c, text, x, y, font_name=TEXT_FONT, font_size=11):
     c.setFont(font_name, font_size)
     text_width = c.stringWidth(text, font_name, font_size)
     cx = x - text_width  # move left by text width to right-justify
-    cy = y + (DOT_SPACING - font_size) / 2  # vertically center between dots
+    cy = y + (DOT_SPACING - font_size * 0.8) / 2
     c.drawString(cx, cy, text)
-
-
-def draw_text_across_grid(c, text, start_x, base_y, font_name=BOLD_FONT, font_size=11):
-    c.setFont(font_name, font_size)
-    x = start_x
-    for letter in text:
-        draw_text_in_cell(c, letter, x, base_y, font_name, font_size)
-        x += DOT_SPACING
 
 
 def draw_title_page(c, title):

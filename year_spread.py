@@ -61,7 +61,7 @@ def draw_text_in_cell(
 
 def draw_text_vertically_centered(c, text, x, y, font_name=TEXT_FONT, font_size=11):
     c.setFont(font_name, font_size)
-    cy = y + (DOT_SPACING - font_size) / 2
+    cy = y + (DOT_SPACING - font_size * 0.8) / 2
     c.drawString(x, cy, text)
 
 
