@@ -27,7 +27,7 @@ VERTICAL_LINE_Y_START = LINE_Y
 VERTICAL_LINE_Y_END = LINE_Y - (155 * mm)  # 15.5 cm down
 
 # Calendar settings
-year, month = 2025, 10
+year, month = 2025, 11
 cal = calendar.Calendar(firstweekday=0)
 month_name_full = calendar.month_name[month].upper()  # full month name
 month_name_short = calendar.month_name[month][:3].upper()
@@ -205,6 +205,7 @@ def draw_layout(c):
         "Music",
         "Dancing",
         "Therapy",
+        "Date Night",
         "",  # empty line
         "Important",
         "Birthdays",
