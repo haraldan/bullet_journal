@@ -24,7 +24,7 @@ BOLD_FONT = "Merienda_black"
 pdfmetrics.registerFont(TTFont(TEXT_FONT, TEXT_FONT_FILE))
 pdfmetrics.registerFont(TTFont(BOLD_FONT, BOLD_FONT_FILE))
 
-year = 2025
+year = 2026
 cal = calendar.Calendar(firstweekday=0)
 
 
@@ -148,7 +148,7 @@ def draw_calendar_page(c, months, mirror=False):
         )
 
         # Draw month abbreviation above the left line
-        abbrev = calendar.month_name[month][:3].upper()
+        abbrev = calendar.month_name[month][:3].upper() #type: ignore
         total_width = len(abbrev) * DOT_SPACING
         sep_start_x = left_margin + (line_length_left - total_width) / 2
         draw_text_across_grid(c, abbrev, sep_start_x, current_y, font_name=TEXT_FONT)
@@ -182,6 +182,187 @@ def draw_calendar_page(c, months, mirror=False):
         draw_text_vertically_centered(c, "MISC", left_margin, current_y)
 
 
+def draw_full_year_single_page(c, year):
+    """
+    Draw a full year calendar on one A5 page,
+    rotated 90° counter-clockwise, months in a 4x3 grid.
+    Dot grid remains unrotated.
+    """
+
+    # Draw dot grid in normal orientation
+    draw_dot_grid(c, True)
+
+    c.saveState()
+
+    # Rotate content 90° counter-clockwise
+    c.translate(PAGE_WIDTH, 0)
+    c.rotate(90)
+
+    rotated_width = PAGE_HEIGHT
+    rotated_height = PAGE_WIDTH
+
+    cols = 4
+    rows = 3
+
+    # Snap usable area to dot grid
+    usable_width = rotated_width
+    usable_height = rotated_height
+
+    dots_x = int(usable_width / DOT_SPACING)
+    dots_y = int(usable_height / DOT_SPACING)
+
+    dots_per_col = dots_x // cols + 1
+    dots_per_row = dots_y // rows
+
+    line_dots = 7
+    line_length = line_dots * DOT_SPACING
+    line_gap = DOT_SPACING
+
+    month = 1
+    for row in range(rows):
+        for col in range(cols):
+            if month > 12:
+                break
+
+            # Cell origin aligned to dot grid
+            cell_x = col * dots_per_col * DOT_SPACING + DOT_SPACING
+            cell_top_y = (
+                +rotated_height - DOT_SPACING * 2 - row * dots_per_row * DOT_SPACING
+            )
+
+            # Center header line inside the cell
+            cell_width = dots_per_col * DOT_SPACING
+            line_start_x = cell_x
+            line_y = cell_top_y
+
+            c.setLineWidth(LINE_WIDTH)
+            c.line(
+                line_start_x,
+                line_y,
+                line_start_x + line_length,
+                line_y,
+            )
+
+            # Month title (bold, centered over 7-dot line)
+            abbrev = calendar.month_name[month][:3].upper()
+            title_width = len(abbrev) * DOT_SPACING
+            title_x = line_start_x + (line_length - title_width) / 2
+
+            draw_text_across_grid(
+                c,
+                abbrev,
+                title_x,
+                line_y,
+                font_name=BOLD_FONT,
+                font_size=9,
+            )
+
+            # Calendar starts exactly one dot below header
+            cal_start_y = line_y - DOT_SPACING
+            draw_calendar(c, month, line_start_x, cal_start_y)
+
+            month += 1
+
+    c.restoreState()
+
+
+def draw_rectangles_page(c):
+    """
+    Draw dot grid (mirrored margins) and 8 rounded rectangles (2x4),
+    aligned to the dot grid.
+
+    - 2 columns, gap between columns: 2 dot spacings
+    - 4 rows
+        - gap between rows: 2 dot spacings
+        - gap between row 2 and 3: 3 dot spacings
+    - Corner radius: 1 dot spacing
+    """
+
+    # Draw mirrored dot grid
+    draw_dot_grid(c, mirror_margins=True)
+
+    cols = 2
+    rows = 4
+
+    gap_dots = 1
+    middle_gap_dots = 2
+
+    radius = DOT_SPACING
+
+    labels = [
+        "PHD",
+        "LIFE",
+        "HEALTH",
+        "LANGUAGE",
+        "LOVE LIFE",
+        "FRIENDS",
+        "MUSIC & DANCE",
+        "OTHER",
+    ]
+
+    usable_width = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT
+    usable_height = PAGE_HEIGHT - 2 * DOT_SPACING
+
+    # Snap usable area to grid
+    dots_x = int(usable_width / DOT_SPACING)
+    dots_y = int(usable_height / DOT_SPACING)
+
+    # Total vertical gaps in dots
+    total_row_gaps = gap_dots * (rows - 1)
+    total_row_gaps += middle_gap_dots - gap_dots
+
+    # Rectangle size in dots
+    rect_dots_x = (dots_x - gap_dots) // cols
+    rect_dots_y = (dots_y - total_row_gaps) // rows
+
+    rect_width = rect_dots_x * DOT_SPACING
+    rect_height = rect_dots_y * DOT_SPACING
+
+    c.setLineWidth(LINE_WIDTH)
+
+    label_index = 0
+
+    for row in range(rows):
+        for col in range(cols):
+            # Horizontal position
+            x = MARGIN_RIGHT + col * (rect_width + gap_dots * DOT_SPACING)
+
+            # Vertical position (top to bottom)
+            y_offset_dots = row * (rect_dots_y + gap_dots)
+
+            # Add extra gap below row 1 (between rows 2 and 3)
+            if row >= 2:
+                y_offset_dots += middle_gap_dots - gap_dots
+
+            y = DOT_SPACING + (dots_y - rect_dots_y - y_offset_dots) * DOT_SPACING
+
+            c.roundRect(
+                x,
+                y,
+                rect_width,
+                rect_height,
+                radius,
+                stroke=1,
+                fill=0,
+            )
+            # --- Draw centered title ---
+            text = labels[label_index]
+            label_index += 1
+
+            text_width = c.stringWidth(text, TEXT_FONT, 11)
+            text_x = x + (rect_width - text_width) / 2
+
+            # First cell below the top edge
+            text_y = y + rect_height - DOT_SPACING
+
+            draw_text_vertically_centered(
+                c,
+                text,
+                text_x,
+                text_y,
+            )
+
+
 def create_pdf(filename=None):
     if filename is None:
         filename = f"bullet_journal_{year}_full.pdf"
@@ -208,6 +389,18 @@ def create_pdf(filename=None):
     c.showPage()
 
     draw_dot_grid(c, mirror_margins=True)
+    c.showPage()
+
+    draw_title_page(c, "VACATIONS")
+    c.showPage()
+
+    draw_full_year_single_page(c, year)
+    c.showPage()
+
+    draw_title_page(c, "GOALS")
+    c.showPage()
+
+    draw_rectangles_page(c)
     c.showPage()
 
     c.save()

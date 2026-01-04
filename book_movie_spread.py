@@ -144,7 +144,7 @@ def draw_full_grid_page(c, mirror=False, text=""):
 
 def create_pdf(filename=None):
     if filename is None:
-        filename = f"bullet_journal_2025_books.pdf"
+        filename = f"bullet_journal_books.pdf"
     c = canvas.Canvas(filename, pagesize=A5)
 
     draw_title_page(c, "BOOKS")
