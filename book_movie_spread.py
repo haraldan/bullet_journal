@@ -85,12 +85,12 @@ def draw_full_grid_page(c, mirror=False, text=""):
     dot_rows = [y_start + i * DOT_SPACING for i in range(num_rows)]
 
     # Determine bottom limit for mirrored pages
-    bottom_limit = 40 * mm if mirror else dot_rows[0]
+    bottom_limit = 40 * mm if mirror else dot_rows[1]
 
     # --- Horizontal lines ---
     for i, y in enumerate(dot_rows):
-        # Skip lowest line on mirrored pages
-        if mirror and i == 0:
+        # Skip lowest line
+        if i == 0:
             continue
         # Skip lines below bottom limit
         if mirror and y < bottom_limit:
